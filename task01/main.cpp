@@ -3,6 +3,7 @@
 #include <cassert>
 #include <vector>
 #include <filesystem>
+#include <cmath>
 //
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -65,6 +66,14 @@ void draw_polygon(
         float p1x = polygon_xy[i1_vtx * 2 + 0] - x;
         float p1y = polygon_xy[i1_vtx * 2 + 1] - y;
         // write a few lines of code to compute winding number (hint: use atan2)
+        float p0_norm = sqrt(p0x * p0x + p0y * p0y);
+        float p1_norm = sqrt(p1x * p1x + p1y * p1y);
+        float dot_product = p0x * p1x + p0y * p1y;
+        float cos_theta = dot_product / (p0_norm * p1_norm);
+        float cross_product = -(p0x * p1y - p0y * p1x); // cross product * -1 because the x-axis and y-axis is flipped
+        float sin_theta = cross_product / (p0_norm * p1_norm);
+        float theta = atan2(sin_theta, cos_theta);
+        winding_number += theta / (2 * M_PI);
       }
       const int int_winding_number = int(std::round(winding_number));
       if (int_winding_number == 1 ) { // if (x,y) is inside the polygon
@@ -91,6 +100,7 @@ void dda_line(
   auto dx = x1 - x0;
   auto dy = y1 - y0;
   // write some code below to paint pixel on the line with color `brightness`
+    
 }
 
 int main() {
