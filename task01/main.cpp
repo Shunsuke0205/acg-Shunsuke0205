@@ -100,7 +100,27 @@ void dda_line(
   auto dx = x1 - x0;
   auto dy = y1 - y0;
   // write some code below to paint pixel on the line with color `brightness`
-    
+  if (std::abs(dy) / std::abs(dx) < 1) {
+    if (x0 > x1) {
+      std::swap(x0, x1);
+      std::swap(y0, y1);
+    }
+    float slope = dy / dx;
+    for (int ix = floor(x0); ix <= floor(x1); ++ix) {
+      float iy = y0 + slope * (ix - x0);
+      img_data[width * floor(iy) + ix] = brightness;
+    }
+  } else {
+    if (y0 > y1) {
+      std::swap(x0, x1);
+      std::swap(y0, y1);
+    }
+    float slope = dx / dy;
+    for (int iy = floor(y0); iy <= floor(y1); ++iy) {
+      float ix = x0 + slope * (iy - y0);
+      img_data[width * iy + floor(ix)] = brightness;
+    }
+  }
 }
 
 int main() {
