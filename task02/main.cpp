@@ -28,7 +28,7 @@ float area(
 /***
  * compute number of intersection of a ray against a line segment
  * @param org ray origin
- * @param dir ray direction (unit normal)
+ * @param dir ray direction
  * @param ps one of the two end points
  * @param pe the other end point
  * @return number of intersection
@@ -38,16 +38,16 @@ int number_of_intersection_ray_against_edge(
     const Eigen::Vector2f &dir,
     const Eigen::Vector2f &ps,
     const Eigen::Vector2f &pe) {
-  auto a = area(org, org + dir, ps);
-  auto b = area(org, pe, org + dir);
+  // dir must be a long vector in order to intersect with the line segment
+  auto direction = (1000.f / dir.norm()) * dir;
+
+  auto a = area(org, org + direction, ps);
+  auto b = area(org, pe, org + direction);
   auto c = area(org, pe, ps);
-  auto d = area(org + dir, ps, pe);
+  auto d = area(org + direction, ps, pe); // this is the bug fix
   if (a * b >= 0.f && d * c >= 0.f) {
     return 1;
   }
-  // the following code was a bug
-  // auto d = area(org + dir, ps, pe);
-  //if (a * b > 0.f && d * c > 0.f && fabs(d) > fabs(c)) { return 1; }
   return 0;
 }
 
@@ -109,17 +109,16 @@ int number_of_intersection_ray_against_quadratic_bezier(
 
   float root_minus = (-b - sqrt(b * b - 4 * a * c)) / (2 * a);
   float root_plus  = (-b + sqrt(b * b - 4 * a * c)) / (2 * a);
-  
   int number_of_roots = 0;
   if (0 <= root_minus && root_minus <= 1) {
     Eigen::Vector2f point_on_curve = (1 - root_minus) * (1 - root_minus) * ps + 2 * (1 - root_minus) * root_minus * pc + root_minus * root_minus * pe;
-    if (area(org, org + dir_perpendicular, point_on_curve) < 0) {
+    if (area(org, point_on_curve, org + dir_perpendicular) > 0) {
       number_of_roots += 1;
     }
   }
   if (0 <= root_plus && root_plus <= 1) {
     Eigen::Vector2f point_on_curve = (1 - root_plus) * (1 - root_plus) * ps + 2 * (1 - root_plus) * root_plus * pc + root_plus * root_plus * pe;
-    if (area(org, org + dir_perpendicular, point_on_curve) < 0) {
+    if (area(org, point_on_curve, org + dir_perpendicular) > 0) {
       number_of_roots += 1;
     }
   }
@@ -141,7 +140,7 @@ int main() {
   for (unsigned int ih = 0; ih < height; ++ih) {
     for (unsigned int iw = 0; iw < width; ++iw) {
       const auto org = Eigen::Vector2f(iw + 0.5, ih + 0.5); // pixel center
-      const auto dir = Eigen::Vector2f(6000., 2000.); // search direction
+      const auto dir = Eigen::Vector2f(0.0001, 0.0001); // search direction
       int count_cross = 0;
       for (const auto &loop: loops) { // loop over loop (letter R have internal/external loops)
         for (const auto &edge: loop) { // loop over edge in the loop
