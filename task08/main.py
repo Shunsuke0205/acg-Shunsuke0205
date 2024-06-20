@@ -108,8 +108,7 @@ class HelloWorld(mglw.WindowConfig):
                 # write a few lines of codes to compute p1 using the linear blend skinning
                 # hint: use np.matmul for matrix multiplication
                 # hint: assume that rig weights w add up to one
-
-                # p1 += ???
+                p1 += w * np.matmul(globalTransformation, np.matmul(inverseBindingMatrix, p0))
 
             self.vtx2xyz_def[i_vtx] = p1[:3]  # from homogeneous coordinates to the Cartesian coordinates
 
