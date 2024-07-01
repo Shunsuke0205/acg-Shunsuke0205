@@ -125,13 +125,31 @@ void search_collision_in_bvh(
   // hint: use following function
   //   bvhnodes[i_bvhnode].intersect_bv(ray_org, ray_dir)
 
+  if (!bvhnodes[i_bvhnode].intersect_bv(ray_org, ray_dir)) {
+    return;
+  }
+
   if (bvhnodes[i_bvhnode].is_leaf()) { // this is leaf node
     const unsigned int i_tri = bvhnodes[i_bvhnode].i_node_left;
     // do something
+    const auto pair = ray_triangle_intersection(ray_org, ray_dir, i_tri, tri2vtx, vtx2xyz);
+    if (!pair) {
+      return;
+    }
+    const auto& [position, normal] = pair.value();
+    const float depth = (position - ray_org).norm();
+    if (depth < hit_depth) {
+      is_hit = true;
+      hit_depth = depth;
+      hit_pos = position;
+      hit_normal = normal;
+    }
   } else { // this is branch node
     unsigned int i_node_right = bvhnodes[i_bvhnode].i_node_right;
     unsigned int i_node_left =bvhnodes[i_bvhnode].i_node_left;
     // do something (hint recursion)
+    search_collision_in_bvh(is_hit, hit_depth, hit_pos, hit_normal, i_node_left, ray_org, ray_dir, tri2vtx, vtx2xyz, bvhnodes);
+    search_collision_in_bvh(is_hit, hit_depth, hit_pos, hit_normal, i_node_right, ray_org, ray_dir, tri2vtx, vtx2xyz, bvhnodes);
   }
 }
 
@@ -148,6 +166,7 @@ auto find_intersection_between_ray_and_triangle_mesh(
   Eigen::Vector3f hit_normal;
 
   // for Problem 2,3,4, comment out from here
+  /*
   for (unsigned int i_tri = 0; i_tri < tri2vtx.rows(); ++i_tri) {
     const auto res = ray_triangle_intersection(ray_org, ray_dir, i_tri, tri2vtx, vtx2xyz);
     if (!res) { continue; }
@@ -160,6 +179,7 @@ auto find_intersection_between_ray_and_triangle_mesh(
       hit_normal = n0;
     }
   }
+  */
   // comment out end
 
   // do not edit from here
