@@ -138,7 +138,12 @@ class HelloWorld(mglw.WindowConfig):
         # L is the graph Laplacian matrix a.k.a `self.matrix_laplace`
         # you may use `spsolve` to solve the liner system
         # spsolve: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.spsolve.html#scipy.sparse.linalg.spsolve
-
+        
+        # Laplacian deformation
+        A = self.matrix_fix + self.matrix_laplace
+        b = self.matrix_fix @ self.vtx2xyz_def + self.matrix_laplace @ self.vtx2xyz_ini
+        for i in range(b.shape[1]):
+            self.vtx2xyz_def[:, i] = spsolve(A, b[:, i])
 
         # do not edit beyond here
         # above: deformation
