@@ -56,6 +56,7 @@ auto sample_hemisphere(
 
   // For Problem 4, write some code below to sample hemisphere with cosign weight
   // (i.e., the sampling frequency is higher at the top)
+  pdf = dir_loc.z() / float(M_PI);
 
 
   // end of Problem 4. Do not modify the two lines below
