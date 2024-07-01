@@ -37,7 +37,6 @@ float SDF(vec3 pos)
 {
   float d0 = sdCappedCylinder(pos, len_cylinder, rad_cylinder);
   // write some code to combine the signed distance fields above to design the object described in the README.md
-  float d1 = sdSphere(pos, rad_sphere);
   float cylinder2 = sdCappedCylinder(vec3(pos.x, pos.z, pos.y), len_cylinder, rad_cylinder);
   float cylinder3 = sdCappedCylinder(vec3(pos.z, pos.x, pos.y), len_cylinder, rad_cylinder);
   float cylinders_union = min(d0, min(cylinder2, cylinder3));
@@ -52,7 +51,22 @@ float SDF(vec3 pos)
 vec3 SDF_color(vec3 pos)
 {
   // write some code below to return color (RGB from 0 to 1) to paint the object describe in README.md
-  return vec3(0., 1., 0.); // comment out and define new color
+  // return vec3(0., 1., 0.); // comment out and define new color
+  float cylinder1 = sdCappedCylinder(pos, len_cylinder, rad_cylinder);
+  float cylinder2 = sdCappedCylinder(vec3(pos.x, pos.z, pos.y), len_cylinder, rad_cylinder);
+  float cylinder3 = sdCappedCylinder(vec3(pos.z, pos.x, pos.y), len_cylinder, rad_cylinder);
+  float cylinders_union = min(cylinder1, min(cylinder2, cylinder3));
+  float box = sdBox(pos, vec3(box_size, box_size, box_size));
+  float sphere = sdSphere(pos, rad_sphere);
+  float sphere_box_intersection = max(box, sphere);
+  float subtracted_object = max(-cylinders_union, sphere_box_intersection);
+  if (-cylinders_union > sphere_box_intersection) {
+    return vec3(0.0, 1.0, 0.0); // breen on cylinders
+  } else if (sphere > box) {
+    return vec3(0.0, 0.0, 1.0); // blue on sphere
+  } else {
+    return vec3(1.0, 0.0, 0.0); // red on box
+  }
 }
 
 uniform float time; // current time given from CPU
