@@ -140,8 +140,11 @@ class HelloWorld(mglw.WindowConfig):
         # spsolve: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.spsolve.html#scipy.sparse.linalg.spsolve
         
         # Laplacian deformation
-        A = self.matrix_fix + self.matrix_laplace
-        b = self.matrix_fix @ self.vtx2xyz_def + self.matrix_laplace @ self.vtx2xyz_ini
+        # A = self.matrix_fix + self.matrix_laplace
+        # b = self.matrix_fix @ self.vtx2xyz_def + self.matrix_laplace @ self.vtx2xyz_ini
+        # Bi-Laplacian deformation
+        A = self.matrix_fix + self.matrix_bilaplace
+        b = self.matrix_fix @ self.vtx2xyz_def + self.matrix_bilaplace @ self.vtx2xyz_ini
         for i in range(b.shape[1]):
             self.vtx2xyz_def[:, i] = spsolve(A, b[:, i])
 
