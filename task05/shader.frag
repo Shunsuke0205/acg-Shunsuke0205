@@ -37,7 +37,15 @@ float SDF(vec3 pos)
 {
   float d0 = sdCappedCylinder(pos, len_cylinder, rad_cylinder);
   // write some code to combine the signed distance fields above to design the object described in the README.md
-  return d0; // comment out and define new distance
+  float d1 = sdSphere(pos, rad_sphere);
+  float cylinder2 = sdCappedCylinder(vec3(pos.x, pos.z, pos.y), len_cylinder, rad_cylinder);
+  float cylinder3 = sdCappedCylinder(vec3(pos.z, pos.x, pos.y), len_cylinder, rad_cylinder);
+  float cylinders_union = min(d0, min(cylinder2, cylinder3));
+  float box = sdBox(pos, vec3(box_size, box_size, box_size));
+  float sphere = sdSphere(pos, rad_sphere);
+  float sphere_box_intersection = max(box, sphere);
+  float subtracted_object = max(-cylinders_union, sphere_box_intersection);
+  return subtracted_object;
 }
 
 /// RGB color at the position `pos`
